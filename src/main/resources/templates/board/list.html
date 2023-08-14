@@ -51,7 +51,6 @@
     <table class="table table-striped">
       <thead>
       <tr>
-
         <th scope="col">번호</th>
         <th scope="col">제목</th>
         <th scope="col">작성자</th>
@@ -60,8 +59,11 @@
       <tbody>
       <tr th:each="board : ${boards}">
         <td th:text="${board.id}">Mark</td>
-        <td> <a th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Otto</a></td>
-        <td>김유성</td>
+        <td><a th:text="${board.title}" th:href="@{/board/{id}(id=${board.id})}">Otto</a></td>
+        <td>
+          <span th:if="${board.author != null}" th:text="${board.author.username}"></span>
+          <span th:unless="${board.author != null}">Unknown</span>
+        </td>
       </tr>
       </tbody>
     </table>

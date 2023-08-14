@@ -39,8 +39,8 @@ public class BoardController {
     private CommentRepository commentRepository;
 
     @GetMapping("/list")
-    public String list(Model model, @PageableDefault(size = 5)  Pageable pageable,
-                       @RequestParam(required = false, defaultValue = "") String  searchText) {
+    public String list(Model model, @PageableDefault(size = 5) Pageable pageable,
+                       @RequestParam(required = false, defaultValue = "") String searchText) {
         Page<Board> boards = boardRepository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
         int startPage = Math.max(0, boards.getPageable().getPageNumber() - 4);
         int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
@@ -75,14 +75,21 @@ public class BoardController {
     }
 
     @PostMapping("/form")
-    public String formSubmit(@Valid Board board, BindingResult bindingResult) {
+    public String formSubmit(@Valid Board board, BindingResult bindingResult,
+                             @AuthenticationPrincipal UserDetails userDetails) {
         boardValidator.validate(board, bindingResult);
         if (bindingResult.hasErrors()) {
             return "board/form";
         }
+
+        User currentUser = userRepository.findByUsername(userDetails.getUsername());
+
+        board.setAuthor(currentUser); // 작성자 정보 설정
+
         boardRepository.save(board);
         return "redirect:/board/list";
     }
+
 
     @PostMapping("/{boardId}/comments")
     public String addComment(@PathVariable Long boardId, String content,
